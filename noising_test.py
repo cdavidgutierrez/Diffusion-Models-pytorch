@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser()
 args = parser.parse_args()
 args.batch_size = 1  # 5
 args.image_size = 64
-args.dataset_path = r"C:\Users\dome\datasets\landscape_img_folder"
+args.dataset_path = '/home/david/Documents/David_Gutierrez/Diffusion-Models-pytorch'
 
 dataloader = get_data(args)
 

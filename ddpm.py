@@ -98,8 +98,8 @@ def launch():
     args.run_name = "DDPM_Uncondtional"
     args.epochs = 500
     args.batch_size = 12
-    args.image_size = 64
-    args.dataset_path = r"C:\Users\dome\datasets\landscape_img_folder"
+    args.image_size = 256
+    args.dataset_path = '/home/david/Documents/David_Gutierrez/Diffusion-Models-pytorch'
     args.device = "cuda"
     args.lr = 3e-4
     train(args)
