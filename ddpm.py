@@ -77,7 +77,24 @@ def train(args):
             t = diffusion.sample_timesteps(images.shape[0]).to(device)
             x_t, noise = diffusion.noise_images(images, t)
             predicted_noise = model(x_t, t)
-            loss = mse(noise, predicted_noise)
+            
+            # Compute the MSE loss between the predicted noise and the true noise
+            noise_loss = mse(noise, predicted_noise)
+            
+            # Generate the corresponding objects from the "objects" directory
+            object_paths = [os.path.join("ITeclas", f"{i}.png") for i in range(images.shape[0])]
+            objects = [np.load(path) for path in object_paths]
+            
+            # Apply the exponential function to the predicted images
+            generated_images = x_t + predicted_noise
+            exponentials = [np.exp(generated_images[i].cpu().numpy()) for i in range(images.shape[0])]
+            exponentials = torch.from_numpy(np.array(exponentials)).float().to(device)
+            
+            # Compute the MSE loss between the exponentials and the true objects
+            object_loss = mse(exponentials, torch.from_numpy(np.array(objects)).float().to(device))
+            
+            # Combine the two losses with a weighting factor
+            loss = noise_loss + args.object_loss_weight * object_loss
 
             optimizer.zero_grad()
             loss.backward()
@@ -91,17 +108,19 @@ def train(args):
         torch.save(model.state_dict(), os.path.join("models", args.run_name, f"ckpt.pt"))
 
 
+
 def launch():
     import argparse
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = "DDPM_Uncondtional"
     args.epochs = 500
-    args.batch_size = 12
-    args.image_size = 256
+    args.batch_size = 6
+    args.image_size = 64
     args.dataset_path = '/home/david/Documents/David_Gutierrez/Diffusion-Models-pytorch'
     args.device = "cuda"
     args.lr = 3e-4
+    args.object_loss_weight = 1.0
     train(args)
 
 
